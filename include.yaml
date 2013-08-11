@@ -1,0 +1,17 @@
+# -*- coding: utf-8; indent-tabs-mode: nil; tab-width: 4; c-basic-offset: 4; -*-
+
+default: &options
+    route: /usr/local/www/build
+
+include:
+    build.css:
+        <<   : *options
+        files:
+            - /usr/local/www/build/file1.css
+            - /usr/local/www/build/file2.css
+
+    build.js:
+        <<   : *options
+        files:
+            - /usr/local/www/build/file1.js
+            - /usr/local/www/build/file2.js
