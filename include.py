@@ -122,8 +122,6 @@ class Include(object):
 	def __build(self):
 		params = self.params.get('include')
 
-		start_time = time.time()
-
 		for output_name, items in params.items():
 			output_path = items.get('route')
 
