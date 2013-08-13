@@ -23,7 +23,7 @@
 -             - ../file.js
 -
 - @author Alexander Guinness <monolithed@gmail.com>
-- @version 0.0.1
+- @version 0.0.2
 - @license: MIT
 - @date: Aug 11 23:52:00 2013
 '''
@@ -37,7 +37,10 @@ import sys
 from functools import wraps
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
+
+
+import tempfile, shutil, os
 
 
 class Include(object):
@@ -128,25 +131,36 @@ class Include(object):
 			if not output_path.endswith('/'):
 				output_path += '/'
 
-			try:
-				with open(output_path + output_name, 'w', encoding='utf-8') as build:
-					try:
-						for line in fileinput.input(items.get('files')):
-							build.write('%s\n' % line)
+			build = output_path + output_name
 
-					except IOError:
-						self.log('the path %s was not found' %
-							fileinput.filename(), True)
+			if not os.path.isdir(output_path):
+				self.log('the path %s was not found' %
+					output_path, True)
+
+			try:
+				dummy = tempfile.NamedTemporaryFile(mode='w+t',
+					delete=False)
+
+				for line in fileinput.input(items.get('files')):
+					dummy.write('%s\n' % line)
+
+				else:
+					try:
+						shutil.move(dummy.name, build)
+
+					except FileNotFoundError as error:
+						self.log(error, True)
 
 					else:
-						self.log('the file %s was included' %
-							fileinput.filename())
+						dummy.close()
 
-			except IOError:
-				self.log('the path %s was not found' % output_path, True)
+			except FileNotFoundError:
+				self.log('the file %s was not found' %
+					fileinput.filename(), True)
 
 			else:
-				self.log('the file %s was found' % output_path)
+				self.log('the file %s was built' % build)
+
 
 
 	def version(self):
