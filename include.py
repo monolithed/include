@@ -34,13 +34,15 @@ import yaml
 import fileinput
 import time
 import sys
+import os
+import tempfile
+import shutil
+
 from functools import wraps
 
 
 __version__ = '0.0.2'
 
-
-import tempfile, shutil, os
 
 
 class Include(object):
