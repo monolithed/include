@@ -23,7 +23,7 @@
 -             - ../file.js
 -
 - @author Alexander Guinness <monolithed@gmail.com>
-- @version 0.0.2
+- @version 0.0.3
 - @license: MIT
 - @date: Aug 11 23:52:00 2013
 '''
@@ -41,7 +41,7 @@ import shutil
 from functools import wraps
 
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 
@@ -113,13 +113,26 @@ class Include(object):
 		def wrap(self, *args):
 			start  = time.time()
 			result = fn(self, *args)
-			stop   = time.time()
 
-			self.log('the file including took %0.3f ms'
-				% ((stop - start) * 1000.0))
+			self.log('total build time files took %0.3f ms'
+				% ((time.time() - start) * 1000.0))
 
 			return result
 		return wrap
+
+
+	def __normalize(self, files):
+		path = self.options.get('config')
+
+		for file in files:
+			if file.startswith('/'):
+				yield file
+
+			else:
+				path = os.path.dirname(path)
+				file = os.path.abspath(os.path.join(path, file))
+
+				yield file
 
 
 	@test
@@ -127,28 +140,30 @@ class Include(object):
 	def __build(self):
 		params = self.params.get('include')
 
-		for output_name, items in params.items():
-			output_path = items.get('route')
+		for file, items in params.items():
+			path = ''.join(self.__normalize([items.get('route')]))
 
-			if not output_path.endswith('/'):
-				output_path += '/'
+			if not path.endswith('/'):
+				path += '/'
 
-			build = output_path + output_name
-
-			if not os.path.isdir(output_path):
+			if not os.path.isdir(path):
 				self.log('the path %s was not found' %
-					output_path, True)
+					path, True)
+
+			path += file;
 
 			try:
 				dummy = tempfile.NamedTemporaryFile(mode='w+t',
 					delete=False)
 
-				for line in fileinput.input(items.get('files')):
+				files = self.__normalize(items.get('files'))
+
+				for line in fileinput.input(files):
 					dummy.write('%s\n' % line)
 
 				else:
 					try:
-						shutil.move(dummy.name, build)
+						shutil.move(dummy.name, path)
 
 					except IOError as error:
 						self.log(error, True)
@@ -161,7 +176,7 @@ class Include(object):
 					fileinput.filename(), True)
 
 			else:
-				self.log('the file %s was built' % build)
+				self.log('the file %s was built' % path)
 
 
 

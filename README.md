@@ -30,14 +30,14 @@ include:
     build.css:
         <<   : *options
         files:
-            - /usr/local/www/build/file1.css
-            - /usr/local/www/build/file2.css
+            - ../../file1.css
+            - ../../file2.css
 
     build.js:
         <<   : *options
         files:
-            - /usr/local/www/build/file1.js
-            - /usr/local/www/build/file2.js
+            - ../../file1.js
+            - ../../file2.js
 ```
 
 ```
