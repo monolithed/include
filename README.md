@@ -24,7 +24,7 @@ pip install pyyaml
 
 ```yaml
 default: &options
-    route: /usr/local/www/build
+    out: /usr/local/www/build
 
 include:
     build.css:
@@ -38,6 +38,10 @@ include:
         files:
             - ../../file1.js
             - ../../file2.js
+
+        paths:
+            - ../../path1.js
+            - ../../path2.js
 ```
 
 ```
