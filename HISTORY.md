@@ -5,4 +5,7 @@
 * [Critical] build via a temporary file. <br />
 
 # 0.0.3 / 2013-08-15
-* [Proposal] support relative paths <br />
+* [Proposal] support for relative paths <br />
+
+# 0.0.4 / 2013-08-26
+* [Proposal] support for directories and tests <br />

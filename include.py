@@ -9,7 +9,7 @@
 -
 - # include.yaml
 - default: &options
--     route: /usr/local/www/build
+-     out: /usr/local/www/build
 -
 - include:
 -     build.css:
@@ -23,7 +23,7 @@
 -             - ../file.js
 -
 - @author Alexander Guinness <monolithed@gmail.com>
-- @version 0.0.3
+- @version 0.0.4
 - @license: MIT
 - @date: Aug 11 23:52:00 2013
 '''
@@ -41,7 +41,7 @@ import shutil
 from functools import wraps
 
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 
 
@@ -95,32 +95,6 @@ class Include(object):
 		return data
 
 
-	def test(method):
-		return lambda self: \
-			self.__params() and method(self)
-
-
-	def log(self, name, exit=''):
-		print('[%s]%s %s' % (self.__class__.__name__,
-			exit and ' error:', name))
-
-		if exit:
-			sys.exit(1)
-
-
-	def timing(fn):
-		@wraps(fn)
-		def wrap(self, *args):
-			start  = time.time()
-			result = fn(self, *args)
-
-			self.log('total build time files took %0.3f ms'
-				% ((time.time() - start) * 1000.0))
-
-			return result
-		return wrap
-
-
 	def __normalize(self, files):
 		path = self.options.get('config')
 
@@ -135,13 +109,90 @@ class Include(object):
 				yield file
 
 
+	def __out(self, items):
+		try:
+			out = items.get('out')
+
+			if not out:
+				out = self.params['default']['out']
+
+		except TypeError:
+			self.log('the directive <out> does not found', True)
+
+		return out
+
+
+	def __write(self, files, path):
+		try:
+			dummy = tempfile.NamedTemporaryFile(mode='w+t',
+				delete=False)
+
+			files = self.__normalize(files)
+
+			for line in fileinput.input(files):
+				dummy.write('%s\n' % line)
+
+			else:
+				try:
+					shutil.move(dummy.name, path)
+
+				except IOError as error:
+					self.log(error, True)
+
+				else:
+					dummy.close()
+
+		except FileNotFoundError:
+			self.log('the file %s was not found' %
+				fileinput.filename(), True)
+
+		else:
+			self.log('the file %s was built' % path)
+
+
+	def __files(self, path):
+		result = []
+
+		for root, folders, files in os.walk(path):
+			for file in files:
+				result.append(os.path.join(root, file))
+
+		return result
+
+
+	def test(method):
+		return lambda self: \
+			self.__params() and method(self)
+
+
+	def log(self, name, exit=''):
+		print('[%s]%s %s' % (self.__class__.__name__,
+			exit and ' error:', name))
+
+		if exit:
+			sys.exit(1)
+
+
+	def timing(callback):
+		@wraps(callback)
+		def wrap(self, *args):
+			start  = time.time()
+			result = callback(self, *args)
+
+			self.log('total build time files took %0.3f ms'
+				% ((time.time() - start) * 1000.0))
+
+			return result
+		return wrap
+
+
 	@test
 	@timing
 	def __build(self):
 		params = self.params.get('include')
 
 		for file, items in params.items():
-			path = ''.join(self.__normalize([items.get('route')]))
+			path = ''.join(self.__normalize([self.__out(items)]))
 
 			if not path.endswith('/'):
 				path += '/'
@@ -152,32 +203,16 @@ class Include(object):
 
 			path += file;
 
-			try:
-				dummy = tempfile.NamedTemporaryFile(mode='w+t',
-					delete=False)
+			files = []
 
-				files = self.__normalize(items.get('files'))
+			if 'paths' in items:
+				for paths in items.get('paths'):
+					files.extend(self.__files(paths))
 
-				for line in fileinput.input(files):
-					dummy.write('%s\n' % line)
+			if 'files' in items:
+				files.extend(items.get('files'))
 
-				else:
-					try:
-						shutil.move(dummy.name, path)
-
-					except IOError as error:
-						self.log(error, True)
-
-					else:
-						dummy.close()
-
-			except FileNotFoundError:
-				self.log('the file %s was not found' %
-					fileinput.filename(), True)
-
-			else:
-				self.log('the file %s was built' % path)
-
+			self.__write(files, path)
 
 
 	def version(self):
