@@ -130,7 +130,8 @@ class Include(object):
 			files = self.__normalize(files)
 
 			for line in fileinput.input(files):
-				dummy.write('%s\n' % line)
+				dummy.write('%s%s' %
+					(fileinput.isfirstline() and '\n' or '', line))
 
 			else:
 				try:
