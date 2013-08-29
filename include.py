@@ -202,8 +202,7 @@ class Include(object):
 				self.log('the path %s was not found' %
 					path, True)
 
-			path += file;
-
+			path += file
 			files = []
 
 			if 'paths' in items:

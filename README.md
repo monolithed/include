@@ -40,8 +40,8 @@ include:
             - ../../file2.js
 
         paths:
-            - ../../path1.js
-            - ../../path2.js
+            - ../../path1
+            - ../../path2
 ```
 
 ```
