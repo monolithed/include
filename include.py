@@ -23,7 +23,7 @@
 -             - ../file.js
 -
 - @author Alexander Guinness <monolithed@gmail.com>
-- @version 0.0.4
+- @version 0.0.5
 - @license: MIT
 - @date: Aug 11 23:52:00 2013
 '''
@@ -41,7 +41,7 @@ import shutil
 from functools import wraps
 
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 
 
@@ -96,14 +96,14 @@ class Include(object):
 
 
 	def __normalize(self, files):
-		path = self.options.get('config')
+		config = self.options.get('config')
 
 		for file in files:
 			if file.startswith('/'):
 				yield file
 
 			else:
-				path = os.path.dirname(path)
+				path = os.path.dirname(config)
 				file = os.path.abspath(os.path.join(path, file))
 
 				yield file
