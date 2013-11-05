@@ -12,3 +12,6 @@
 
 # 0.0.5 / 2013-08-31
 * [Critical] fixed path detection <br />
+
+# 0.06 / 2013-08-31
+* [Critical] fixed empty sections <br />

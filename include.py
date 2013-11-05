@@ -1,6 +1,6 @@
 # -*- coding: utf-8; indent-tabs-mode: nil; tab-width: 4; c-basic-offset: 4; -*-
 
-'''
+"""
 - File builder
 -
 - include.py --config [ --test ] | [ --version ]
@@ -26,7 +26,7 @@
 - @version 0.0.5
 - @license: MIT
 - @date: Aug 11 23:52:00 2013
-'''
+"""
 
 
 import yaml
@@ -41,7 +41,7 @@ import shutil
 from functools import wraps
 
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 
 
@@ -206,11 +206,21 @@ class Include(object):
 			files = []
 
 			if 'paths' in items:
-				for paths in items.get('paths'):
+				data = items.get('paths')
+
+				if not data:
+					continue
+
+				for paths in data:
 					files.extend(self.__files(paths))
 
 			if 'files' in items:
-				files.extend(items.get('files'))
+				data = items.get('files')
+
+				if not data:
+					continue
+
+				files.extend(data)
 
 			self.__write(files, path)
 
