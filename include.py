@@ -41,7 +41,7 @@ import shutil
 from functools import wraps
 
 
-__version__ = '0.0.6'
+__version__ = '0.1.0'
 
 
 
@@ -109,17 +109,17 @@ class Include(object):
 				yield file
 
 
-	def __out(self, items):
+	def __output(self, items):
 		try:
-			out = items.get('out')
+			output = items.get('output')
 
-			if not out:
-				out = self.params['default']['out']
+			if not output:
+				output = self.params['default']['output']
 
 		except TypeError:
-			self.log('the directive <out> does not found', True)
+			self.log('the directive <output> does not found', True)
 
-		return out
+		return output
 
 
 	def __write(self, files, path):
@@ -193,7 +193,7 @@ class Include(object):
 		params = self.params.get('include')
 
 		for file, items in params.items():
-			path = ''.join(self.__normalize([self.__out(items)]))
+			path = ''.join(self.__normalize([self.__output(items)]))
 
 			if not path.endswith('/'):
 				path += '/'
